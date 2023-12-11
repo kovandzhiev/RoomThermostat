@@ -1,0 +1,20 @@
+topic:payload
+
+Callback:
+ base_topic:null - broadcast command, respond with base_topic/device_name:ok
+ base_topic/device_name:null - respond with base_topic/device_name:ok
+ base_topic/device_name:all - send all available data per deveice
+ basetopic/mode/set:[heat | cold] - set device control mode: heat or cold
+ basetopic/desiredtemp/set:22.5 - set desired temperature  [ 23.2 ]
+ basetopic/state/set:on - set device state [ on | off ]
+
+Publish:
+ base_topic/device_name:ready - The device has jet stated. This message need to send initialize settings from the remote server. It should publish: data from the server.
+ basetopic/temperature:23.5 - current measured temperature [ N/A ] if doesn't sensor exists
+ basetopic/humidity:48.2 - current measured humidity [ N/A ] if doesn't sensor exists
+ basetopic/inlettemp:50 - inlet pipe temperature or [ N/A ] if doesn't sensor exists
+ basetopic/fandegree:2 - a current fan speed degree. Degrees: 0 - stopped, 1 - low, 2 - medium, 3 - high
+ basetopic/desiredtemp:24.0 - desired temperature
+ basetopic/mode:heat - current device mode
+ basetopic/state:on - current device state
+ basetopic/bypassstate:on - current bypass state

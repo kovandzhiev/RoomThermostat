@@ -1,0 +1,3 @@
+ - After the device starts it wait for a WiFi connection. It is trying 60 seconds for connection.
+ - If it initially doesn't connect to WiFi switch to Access point and waiting for new settings.
+ - 
