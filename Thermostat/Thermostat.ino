@@ -1,6 +1,4 @@
 // WiFiFanCoilMqttMng.ino
-// Company: KMP Electronics Ltd, Bulgaria
-// Web: http://kmpelectronics.eu/
 // Supported boards:
 //    KMP ProDino WiFi-ESP WROOM-02 (http://www.kmpelectronics.eu/en-us/products/prodinowifi-esp.aspx)
 // Description:

@@ -117,21 +117,21 @@ void ReadConfiguration(DeviceSettings* settings)
 				std::unique_ptr<char[]> buf(new char[size]);
 
 				configFile.readBytes(buf.get(), size);
-				DynamicJsonBuffer jsonBuffer;
-				JsonObject& json = jsonBuffer.parseObject(buf.get());
+				DynamicJsonDocument jsonDoc(size);
+				deserializeJson(jsonDoc, buf.get());
 #ifdef WIFIFCMM_DEBUG
-				json.printTo(DEBUG_FC);
+				serializeJson(jsonDoc, DEBUG_FC);
 #endif
-				if (json.success())
+				if (!jsonDoc.isNull())
 				{
 					DEBUG_FC_PRINTLN("\nJson is parsed");
 
-					copyJsonValue(settings->MqttServer, json[MQTT_SERVER_KEY]);
-					copyJsonValue(settings->MqttPort, json[MQTT_PORT_KEY]);
-					copyJsonValue(settings->MqttClientId, json[MQTT_CLIENT_ID_KEY]);
-					copyJsonValue(settings->MqttUser, json[MQTT_USER_KEY]);
-					copyJsonValue(settings->MqttPass, json[MQTT_PASS_KEY]);
-					copyJsonValue(settings->BaseTopic, json[BASE_TOPIC_KEY]);
+					copyJsonValue(settings->MqttServer, jsonDoc[MQTT_SERVER_KEY]);
+					copyJsonValue(settings->MqttPort, jsonDoc[MQTT_PORT_KEY]);
+					copyJsonValue(settings->MqttClientId, jsonDoc[MQTT_CLIENT_ID_KEY]);
+					copyJsonValue(settings->MqttUser, jsonDoc[MQTT_USER_KEY]);
+					copyJsonValue(settings->MqttPass, jsonDoc[MQTT_PASS_KEY]);
+					copyJsonValue(settings->BaseTopic, jsonDoc[BASE_TOPIC_KEY]);
 					// After start device we should set this settings.
 					//_mode = (Mode)atoi(json[MODE_KEY]);
 					//_deviceState = atoi(json[TOPIC_DEVICE_STATE]) == 1 ? On : Off;
