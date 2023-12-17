@@ -36,7 +36,7 @@
 
 #define TEMPERATURE_ARRAY_LEN 10
 #define TEMPERATURE_PRECISION 1
-#define CHECK_TEMP_INTERVAL_MS 5000
+#define CHECK_TEMP_INTERVAL_MS 10000
 
 #define HUMIDITY_ARRAY_LEN 5
 #define HUMIDITY_PRECISION 0
@@ -59,7 +59,7 @@
 #define DHT_SENSORS_TYPE DHT22
 
 // Thermometer Resolution in bits. http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf page 8. 
-// Bits - CONVERSION TIME. 9 - 93.75ms (0.5캜), 10 - 187.5ms (0.25캜), 11 - 375ms (0.125캜), 12 - 750ms (0.0625캜). 
+// Bits - CONVERSION TIME. 9 - 93.75ms (0.5째C), 10 - 187.5ms (0.25째C), 11 - 375ms (0.125째C), 12 - 750ms (0.0625째C). 
 #define ONEWIRE_TEMPERATURE_PRECISION 10
 #define ONEWIRE_SENSORS_PIN EXT_GROVE_D1
 
@@ -95,7 +95,7 @@ const char NOT_AVILABLE[] = "N/A";
 
 const char MUST_BE_ONE[] = "Must be one";
 
-const float FAN_SWITCH_LEVEL[FAN_SWITCH_LEVEL_LEN] = { 0, 0.5, 1.0 };
+const float FAN_SWITCH_LEVEL[FAN_SWITCH_LEVEL_LEN] = { 0, 0.3, 0.9 };
 
 enum Mode
 {
