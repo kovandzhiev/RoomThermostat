@@ -99,50 +99,56 @@ void ReadConfiguration(DeviceSettings* settings)
 	if (!SPIFFS.begin())
 	{
 		DEBUG_FC_PRINTLN("Failed to mount FS");
+		return;
 	}
-	else
+
+	DEBUG_FC_PRINTLN("The file system is mounted.");
+
+	if (!SPIFFS.exists(CONFIG_FILE_NAME))
 	{
-		DEBUG_FC_PRINTLN("The file system is mounted.");
-
-		if (SPIFFS.exists(CONFIG_FILE_NAME))
-		{
-			//file exists, reading and loading
-			DEBUG_FC_PRINTLN("Reading configuration file");
-			File configFile = SPIFFS.open(CONFIG_FILE_NAME, "r");
-			if (configFile)
-			{
-				DEBUG_FC_PRINTLN("Opening configuration file");
-				size_t size = configFile.size();
-				// Allocate a buffer to store contents of the file.
-				std::unique_ptr<char[]> buf(new char[size]);
-
-				configFile.readBytes(buf.get(), size);
-				DynamicJsonDocument jsonDoc(size);
-				deserializeJson(jsonDoc, buf.get());
-#ifdef WIFIFCMM_DEBUG
-				serializeJson(jsonDoc, DEBUG_FC);
-#endif
-				if (!jsonDoc.isNull())
-				{
-					DEBUG_FC_PRINTLN("\nJson is parsed");
-
-					copyJsonValue(settings->MqttServer, jsonDoc[MQTT_SERVER_KEY]);
-					copyJsonValue(settings->MqttPort, jsonDoc[MQTT_PORT_KEY]);
-					copyJsonValue(settings->MqttClientId, jsonDoc[MQTT_CLIENT_ID_KEY]);
-					copyJsonValue(settings->MqttUser, jsonDoc[MQTT_USER_KEY]);
-					copyJsonValue(settings->MqttPass, jsonDoc[MQTT_PASS_KEY]);
-					copyJsonValue(settings->BaseTopic, jsonDoc[BASE_TOPIC_KEY]);
-					// After start device we should set this settings.
-					//_mode = (Mode)atoi(json[MODE_KEY]);
-					//_deviceState = atoi(json[TOPIC_DEVICE_STATE]) == 1 ? On : Off;
-				}
-				else
-				{
-					DEBUG_FC_PRINTLN(F("Loading json configuration is failed"));
-				}
-			}
-		}
+		return;
 	}
+
+	// File exists
+	DEBUG_FC_PRINTLN("Reading configuration file");
+	File configFile = SPIFFS.open(CONFIG_FILE_NAME, "r");
+	if (!configFile)
+	{
+		DEBUG_FC_PRINTLN("Warning: can not open the configuration file");
+		return;
+	}
+
+	DEBUG_FC_PRINTLN("Opening configuration file");
+	size_t size = configFile.size();
+	// Allocate a buffer to store contents of the file.
+	std::unique_ptr<char[]> buf(new char[size]);
+
+	configFile.readBytes(buf.get(), size);
+	DynamicJsonDocument jsonDoc(2048);
+	DeserializationError error = deserializeJson(jsonDoc, buf.get());
+	if (error)
+	{
+		DEBUG_FC_PRINTLN(F("Error: Loading json configuration is failed"));
+		DEBUG_FC_PRINTLN(error.c_str());
+	}
+
+#ifdef WIFIFCMM_DEBUG
+	serializeJson(jsonDoc, DEBUG_FC);
+#endif
+	DEBUG_FC_PRINTLN("\nJson is parsed");
+
+	copyJsonValue(settings->MqttServer, jsonDoc[MQTT_SERVER_KEY]);
+	copyJsonValue(settings->MqttPort, jsonDoc[MQTT_PORT_KEY]);
+	copyJsonValue(settings->MqttClientId, jsonDoc[MQTT_CLIENT_ID_KEY]);
+	copyJsonValue(settings->MqttUser, jsonDoc[MQTT_USER_KEY]);
+	copyJsonValue(settings->MqttPass, jsonDoc[MQTT_PASS_KEY]);
+	copyJsonValue(settings->BaseTopic, jsonDoc[BASE_TOPIC_KEY]);
+
+	// After start the device we can set this settings.
+	//_mode = (Mode)atoi(json[MODE_KEY]);
+	//_deviceState = atoi(json[TOPIC_DEVICE_STATE]) == 1 ? On : Off;
+	// Desired temperature
+
 }
 
 /**
@@ -214,8 +220,7 @@ void SaveConfiguration(DeviceSettings* settings)
 {
 	DEBUG_FC_PRINTLN(F("Saving configuration..."));
 
-	DynamicJsonBuffer jsonBuffer;
-	JsonObject& json = jsonBuffer.createObject();
+	DynamicJsonDocument json(2048);
 
 	json[MQTT_SERVER_KEY] = settings->MqttServer;
 	json[MQTT_PORT_KEY] = settings->MqttPort;
@@ -224,24 +229,24 @@ void SaveConfiguration(DeviceSettings* settings)
 	json[MQTT_PASS_KEY] = settings->MqttPass;
 	json[BASE_TOPIC_KEY] = settings->BaseTopic;
 
-	// We shouldn't save this settings.
+	// We can save this settings.
 	//json[MODE_KEY] = (int)_mode;
 	//json[TOPIC_DEVICE_STATE] = _deviceState == On ? 1 : 0;
+	// Desired temperature
 
 	File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
 	if (!configFile) {
 		DEBUG_FC_PRINTLN(F("Failed to open a configuration file for writing."));
+		return;
 	}
-	else
-	{
-		DEBUG_FC_PRINTLN(F("Configuration is saved."));
-	}
+
+	DEBUG_FC_PRINTLN(F("Configuration is saved."));
 
 #ifdef WIFIFCMM_DEBUG
-	json.prettyPrintTo(DEBUG_FC);
+	serializeJson(json, DEBUG_FC);
 #endif
 
-	json.printTo(configFile);
+	serializeJson(json, configFile);
 	configFile.close();
 }
 
