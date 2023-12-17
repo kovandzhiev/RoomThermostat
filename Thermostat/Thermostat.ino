@@ -275,16 +275,19 @@ void loop(void)
 
 	if (!_isConnected)
 	{
+		// Do not stop if device is not connected
 		// Turn off the device
-		setDeviceState(Off);
-		uint8_t degree = processFanDegree();
-		setFanDegree(degree);
-		FanCoilBypass.processByPassState();
+		// setDeviceState(Off);
+		// uint8_t degree = processFanDegree();
+		// setFanDegree(degree);
+		// FanCoilBypass.processByPassState();
 
-		return;
+		// return;
 	}
-
-	_mqttClient.loop();
+	else
+	{
+		_mqttClient.loop();
+	}
 
 	bool isDHTExists = getTemperatureAndHumidity();
 	processDHTStatus(isDHTExists);
@@ -306,10 +309,11 @@ void loop(void)
 	uint8_t degree = processFanDegree();
 	setFanDegree(degree);
 
-	if (millis() > _sendOkInterval)
-	{
-		publishData(DeviceOk);
-	}
+	// Not need at the moment
+	// if (millis() > _sendOkInterval)
+	// {
+	// 	publishData(DeviceOk);
+	// }
 
 	if (!_isStarted)
 	{
