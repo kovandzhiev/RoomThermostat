@@ -157,7 +157,7 @@ void ReadConfiguration(DeviceSettings* settings)
 *
 * @return bool if successful connected - true else false.
 */
-bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings)
+bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings, int waitingWiFiInSec)
 {
 	//read configuration from FS json
 	DEBUG_FC_PRINTLN("Mounting FS...");
@@ -185,8 +185,8 @@ bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings)
 	DEBUG_FC_PRINTLN(F("Waiting WiFi up..."));
 
 	// If the Fan coil (device) starts together with WiFi, need time to initialize WiFi router.
-	// During this time (60 seconds) device trying to connect to WiFi.
-	wifiManager->setTimeout(60);
+	// During this time waitingWiFiInSec device trying to connect to WiFi.
+	wifiManager->setTimeout(waitingWiFiInSec);
 
 	// fetches ssid and pass from eeprom and tries to connect
 	// if it does not connect it starts an access point with the specified name

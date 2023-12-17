@@ -178,7 +178,7 @@ bool connectWiFi();
 float calcAverage(float* data, uint8 dataLength, uint8 precision);
 
 void ReadConfiguration(DeviceSettings* settings);
-bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings);
+bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings, int waitingWiFiInSec);
 void SaveConfiguration(DeviceSettings* settings);
 void saveConfigCallback();
 

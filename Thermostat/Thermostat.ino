@@ -248,10 +248,14 @@ void setup(void)
 	// Set save configuration callback.
 	wifiManager.setSaveConfigCallback(saveConfigCallback);
 
-	if (!mangeConnectAndSettings(&wifiManager, &_settings))
+	// Trying to start WiFi connection for 120 seconds
+	if (!mangeConnectAndSettings(&wifiManager, &_settings, 120))
 	{
 		return;
 	}
+	
+	// Set WiFi mode to WIFI_STA - station
+	WiFi.mode(WIFI_STA);
 
 	// Start sensors.
 	_dhtSensor.begin();
