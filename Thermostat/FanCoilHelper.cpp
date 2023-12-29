@@ -132,8 +132,8 @@ void ReadConfiguration(DeviceSettings* settings)
 	{
 		DEBUG_FC_PRINTLN(F("Error: Loading json configuration is failed"));
 		DEBUG_FC_PRINTLN(error.c_str());
-		buf.~unique_ptr();
 		jsonDoc.~BasicJsonDocument();
+		buf.~unique_ptr();
 		return;
 	}
 
@@ -154,8 +154,8 @@ void ReadConfiguration(DeviceSettings* settings)
 	copyJsonValue(settings->DeviceState, jsonDoc[DEVICE_STATE_KEY]);
 	copyJsonValue(settings->DesiredTemperature, jsonDoc[DESIRED_TEMPERATURE_KEY]);
 
-	buf.~unique_ptr();
 	jsonDoc.~BasicJsonDocument();
+	buf.~unique_ptr();
 }
 
 /**
@@ -255,7 +255,7 @@ void SaveConfiguration(DeviceSettings* settings)
 	serializeJson(json, configFile);
 	configFile.close();
 
-	configFile.~Stream();
+	//configFile.~Stream();
 	json.~BasicJsonDocument();
 }
 
