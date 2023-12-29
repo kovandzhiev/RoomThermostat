@@ -132,6 +132,9 @@ void ReadConfiguration(DeviceSettings* settings)
 	{
 		DEBUG_FC_PRINTLN(F("Error: Loading json configuration is failed"));
 		DEBUG_FC_PRINTLN(error.c_str());
+		buf.~unique_ptr();
+		jsonDoc.~BasicJsonDocument();
+		return;
 	}
 
 #ifdef WIFIFCMM_DEBUG
@@ -150,6 +153,9 @@ void ReadConfiguration(DeviceSettings* settings)
 	copyJsonValue(settings->Mode, jsonDoc[MODE_KEY]);
 	copyJsonValue(settings->DeviceState, jsonDoc[DEVICE_STATE_KEY]);
 	copyJsonValue(settings->DesiredTemperature, jsonDoc[DESIRED_TEMPERATURE_KEY]);
+
+	buf.~unique_ptr();
+	jsonDoc.~BasicJsonDocument();
 }
 
 /**
@@ -221,6 +227,12 @@ void SaveConfiguration(DeviceSettings* settings)
 {
 	DEBUG_FC_PRINTLN(F("Saving configuration..."));
 
+	File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
+	if (!configFile) {
+		DEBUG_FC_PRINTLN(F("Failed to open a configuration file for writing."));
+		return;
+	}
+
 	DynamicJsonDocument json(2048);
 
 	json[MQTT_SERVER_KEY] = settings->MqttServer;
@@ -234,12 +246,6 @@ void SaveConfiguration(DeviceSettings* settings)
 	json[DEVICE_STATE_KEY] = settings->DeviceState;
 	json[DESIRED_TEMPERATURE_KEY] = settings->DesiredTemperature;
 	
-	File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
-	if (!configFile) {
-		DEBUG_FC_PRINTLN(F("Failed to open a configuration file for writing."));
-		return;
-	}
-
 	DEBUG_FC_PRINTLN(F("Configuration is saved."));
 
 #ifdef WIFIFCMM_DEBUG
@@ -248,6 +254,9 @@ void SaveConfiguration(DeviceSettings* settings)
 
 	serializeJson(json, configFile);
 	configFile.close();
+
+	configFile.~Stream();
+	json.~BasicJsonDocument();
 }
 
 /**

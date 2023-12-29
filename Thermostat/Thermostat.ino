@@ -324,6 +324,15 @@ void loop(void)
 	{
 		_isStarted = true;
 		publishData(DeviceIsReady);
+
+		// Restore previous state
+		setDeviceMode(_settings.Mode, strlen(_settings.Mode));
+
+		DeviceState deviceState = isEqual(_settings.DeviceState, PAYLOAD_ON) ? On : Off;
+		setDeviceState(deviceState);
+
+		float temp = atof(_settings.DesiredTemperature);
+		setDesiredTemperature(temp);
 	}
 
 	FanCoilBypass.processByPassState();
