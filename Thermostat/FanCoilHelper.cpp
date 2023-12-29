@@ -84,7 +84,9 @@ void copyJsonValue(char* s, const char* jsonValue)
 {
 	if (jsonValue == NULL)
 	{
-		s[0] = '\0';
+		//s[0] = '\0';
+		// Keep default
+		return;
 	}
 
 	size_t len = strlen(jsonValue);
@@ -145,10 +147,9 @@ void ReadConfiguration(DeviceSettings* settings)
 	copyJsonValue(settings->BaseTopic, jsonDoc[BASE_TOPIC_KEY]);
 
 	// After start the device we can set this settings.
-	//_mode = (Mode)atoi(json[MODE_KEY]);
-	//_deviceState = atoi(json[TOPIC_DEVICE_STATE]) == 1 ? On : Off;
-	// Desired temperature
-
+	copyJsonValue(settings->Mode, jsonDoc[MODE_KEY]);
+	copyJsonValue(settings->DeviceState, jsonDoc[DEVICE_STATE_KEY]);
+	copyJsonValue(settings->DesiredTemperature, jsonDoc[DESIRED_TEMPERATURE_KEY]);
 }
 
 /**
@@ -229,11 +230,10 @@ void SaveConfiguration(DeviceSettings* settings)
 	json[MQTT_PASS_KEY] = settings->MqttPass;
 	json[BASE_TOPIC_KEY] = settings->BaseTopic;
 
-	// We can save this settings.
-	//json[MODE_KEY] = (int)_mode;
-	//json[TOPIC_DEVICE_STATE] = _deviceState == On ? 1 : 0;
-	// Desired temperature
-
+	json[MODE_KEY] = settings->Mode;
+	json[DEVICE_STATE_KEY] = settings->DeviceState;
+	json[DESIRED_TEMPERATURE_KEY] = settings->DesiredTemperature;
+	
 	File configFile = SPIFFS.open(CONFIG_FILE_NAME, "w");
 	if (!configFile) {
 		DEBUG_FC_PRINTLN(F("Failed to open a configuration file for writing."));

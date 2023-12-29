@@ -17,11 +17,21 @@
 
 // Setup debug printing macros.
 #ifdef WIFIFCMM_DEBUG
-#define DEBUG_FC_PRINT(...) { DEBUG_FC.print(__VA_ARGS__); }
-#define DEBUG_FC_PRINTLN(...) { DEBUG_FC.println(__VA_ARGS__); }
+#define DEBUG_FC_PRINT(...)          \
+	{                                \
+		DEBUG_FC.print(__VA_ARGS__); \
+	}
+#define DEBUG_FC_PRINTLN(...)          \
+	{                                  \
+		DEBUG_FC.println(__VA_ARGS__); \
+	}
 #else
-#define DEBUG_FC_PRINT(...) {}
-#define DEBUG_FC_PRINTLN(...) {}
+#define DEBUG_FC_PRINT(...) \
+	{                       \
+	}
+#define DEBUG_FC_PRINTLN(...) \
+	{                         \
+	}
 #endif
 
 #define FAN_SWITCH_LEVEL_LEN 3
@@ -33,6 +43,9 @@
 #define MQTT_PASS_LEN 16
 #define BASE_TOPIC_LEN 32
 #define INLET_SENSOR_CRC_LEN 16
+#define MODE_LEN 8
+#define DEVICE_STATE_LEN 8
+#define DESIRED_TEMPERATURE_LEN 8
 
 #define TEMPERATURE_ARRAY_LEN 10
 #define TEMPERATURE_PRECISION 1
@@ -58,8 +71,8 @@
 #define DHT_SENSORS_PIN EXT_GROVE_D0
 #define DHT_SENSORS_TYPE DHT22
 
-// Thermometer Resolution in bits. http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf page 8. 
-// Bits - CONVERSION TIME. 9 - 93.75ms (0.5°C), 10 - 187.5ms (0.25°C), 11 - 375ms (0.125°C), 12 - 750ms (0.0625°C). 
+// Thermometer Resolution in bits. http://datasheets.maximintegrated.com/en/ds/DS18B20.pdf page 8.
+// Bits - CONVERSION TIME. 9 - 93.75ms (0.5°C), 10 - 187.5ms (0.25°C), 11 - 375ms (0.125°C), 12 - 750ms (0.0625°C).
 #define ONEWIRE_TEMPERATURE_PRECISION 10
 #define ONEWIRE_SENSORS_PIN EXT_GROVE_D1
 
@@ -69,8 +82,9 @@ const char MQTT_CLIENT_ID_KEY[] = "mqttClientId";
 const char MQTT_USER_KEY[] = "mqttUser";
 const char MQTT_PASS_KEY[] = "mqttPass";
 const char BASE_TOPIC_KEY[] = "baseTopic";
-const char INLET_SENSOR_KEY[] = "inletSensorCRC";
 const char MODE_KEY[] = "mode";
+const char DEVICE_STATE_KEY[] = "state";
+const char DESIRED_TEMPERATURE_KEY[] = "desiredTemp";
 const char CONFIG_FILE_NAME[] = "/config.json";
 
 const char TOPIC_SEPARATOR[] = "/";
@@ -95,7 +109,7 @@ const char NOT_AVILABLE[] = "N/A";
 
 const char MUST_BE_ONE[] = "Must be one";
 
-const float FAN_SWITCH_LEVEL[FAN_SWITCH_LEVEL_LEN] = { 0, 0.3, 0.9 };
+const float FAN_SWITCH_LEVEL[FAN_SWITCH_LEVEL_LEN] = {0, 0.3, 0.9};
 
 enum Mode
 {
@@ -106,7 +120,7 @@ enum Mode
 enum DeviceState
 {
 	Off = 0,
-	On  = 1
+	On = 1
 };
 
 enum DeviceData
@@ -128,9 +142,12 @@ struct DeviceSettings
 	char MqttServer[MQTT_SERVER_LEN] = "x.cloudmqtt.com";
 	char MqttPort[MQTT_PORT_LEN] = "1883";
 	char MqttClientId[MQTT_CLIENT_ID_LEN] = "ESP8266Client";
-	char MqttUser[MQTT_USER_LEN];
-	char MqttPass[MQTT_PASS_LEN];
+	char MqttUser[MQTT_USER_LEN] = "user";
+	char MqttPass[MQTT_PASS_LEN] = "pass";
 	char BaseTopic[BASE_TOPIC_LEN] = "flat/bedroom1";
+	char Mode[MODE_LEN] = "cold";
+	char DeviceState[DEVICE_STATE_LEN] = "off";
+	char DesiredTemperature[DESIRED_TEMPERATURE_LEN] = "22";
 };
 
 struct SensorData
@@ -140,7 +157,7 @@ struct SensorData
 	// Average value calculated from all collected data in DataCollection
 	float Average;
 	// An array which stores collected data
-	float* DataCollection;
+	float *DataCollection;
 	// The array length
 	uint DataCollectionLen;
 	// Current array position
@@ -168,21 +185,20 @@ extern float HumidityCollection[];
 extern SensorData InletData;
 extern float InletCollection[];
 
-
 #ifdef WIFIFCMM_DEBUG
-void printTopicAndPayload(const char* operationName, const char* topic, char* payload, unsigned int length);
+void printTopicAndPayload(const char *operationName, const char *topic, char *payload, unsigned int length);
 #endif
 
 bool connectWiFi();
 
-float calcAverage(float* data, uint8 dataLength, uint8 precision);
+float calcAverage(float *data, uint8 dataLength, uint8 precision);
 
-void ReadConfiguration(DeviceSettings* settings);
-bool mangeConnectAndSettings(WiFiManager* wifiManager, DeviceSettings* settings, int waitingWiFiInSec);
-void SaveConfiguration(DeviceSettings* settings);
+void ReadConfiguration(DeviceSettings *settings);
+bool mangeConnectAndSettings(WiFiManager *wifiManager, DeviceSettings *settings, int waitingWiFiInSec);
+void SaveConfiguration(DeviceSettings *settings);
 void saveConfigCallback();
 
-void setArrayValues(SensorData* sensor);
+void setArrayValues(SensorData *sensor);
 
 void initializeSensorData();
 
