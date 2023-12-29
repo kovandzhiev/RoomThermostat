@@ -263,8 +263,9 @@ void setup(void)
 	// Initialize MQTT.
 	_mqttClient.setClient(_wifiClient);
 
-	// Switch off bypass.
-	FanCoilBypass.setBypassState(Off, true);
+	// Switch off bypass. 
+	//FanCoilBypass.setBypassState(Off, true);
+	// Commented. Stayed as is. This prevent unnecessary Off-> On after restart
 }
 
 /**
