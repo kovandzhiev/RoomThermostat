@@ -194,11 +194,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
 	// Processing topic basetopic/state/set: on, off
 	if (isEqual(topic, TOPIC_DEVICE_STATE))
 	{
+		bool isProcessed = false;
+
 		if (isEqual((char*)payload, PAYLOAD_ON, length))
 		{
 			if (setDeviceState(On))
 			{
 				_lastDeviceState = On;
+				isProcessed = true;
 			}
 		}
 
@@ -207,6 +210,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
 			if (setDeviceState(Off))
 			{
 				_lastDeviceState = Off;
+				isProcessed = true;
+			}
+		}
+
+		if (isProcessed)
+		{
+			if (!isEqual(_settings.DeviceState, (char*)payload, length))
+			{
+				strncpy(_settings.DeviceState, (char*)payload, length);
+				SaveConfiguration(&_settings);
 			}
 		}
 
@@ -578,6 +591,13 @@ void setDesiredTemperature(float temp)
 		if (roundTemp >= MIN_DESIRED_TEMPERATURE && roundTemp <= MAX_DESIRED_TEMPERATURE)
 		{
 			_desiredTemperature = roundTemp;
+
+			FloatToChars(_desiredTemperature, TEMPERATURE_PRECISION, _payloadBuff);
+			if (!isEqual(_settings.DesiredTemperature, _payloadBuff))
+			{
+				strcpy(_settings.DesiredTemperature, _payloadBuff);
+				SaveConfiguration(&_settings);
+			}
 		}
 		publishData(DesiredTemp);
 	}
@@ -709,7 +729,12 @@ void setDeviceMode(char* payload, unsigned int length)
 
 	if (isProcessed)
 	{
-		//SaveConfiguration();
+		if (!isEqual(_settings.Mode, payload, length))
+		{
+			strncpy(_settings.Mode, payload, length);
+			SaveConfiguration(&_settings);
+		}
+		
 		publishData(CurrentMode);
 	}
 }
